@@ -12,7 +12,7 @@ boot-end-marker
 !
 enable secret 5 $1$icdu$2o8hI6ui612Gq5VEMJFdd0
 !
-username admin password 0 admin
+{% include './ios/local_user.j2' %}
 !
 !
 aaa new-model
@@ -24,7 +24,7 @@ aaa new-model
 aaa session-id common
 system mtu routing 1500
 ip routing
-ip domain-name ntc.com
+{% include './ios/dns.j2' %}
 !
 !
 !
@@ -73,10 +73,6 @@ ip access-list standard SSH-ACCESS
 !
 vstack
 !
-line con 0
-line vty 0 4
- password admin
-line vty 5 15
- password admin
+{% include './ios/console_vty.j2' %}
 !
 end
