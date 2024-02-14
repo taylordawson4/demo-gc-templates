@@ -69,7 +69,7 @@ ip http secure-server
 !
 ip access-list standard {{ config_context["acl"]["name"] }}
 {% for rule in config_context["acl"]["rules"] %}
-  {{rule}}
+ {{rule}}
 {% endfor %}
 !
 !
