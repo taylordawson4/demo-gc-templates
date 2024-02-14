@@ -67,8 +67,10 @@ ip route 0.0.0.0 0.0.0.0 192.168.1.254
 ip http server
 ip http secure-server
 !
-ip access-list standard SSH-ACCESS
- permit 192.168.1.199
+ip access-list standard {{ config_context["acl"]["name"] }}
+{% for rule in config_context["acl"]["rules"] %}
+  {{rule}}
+{% endfor %}
 !
 !
 vstack
