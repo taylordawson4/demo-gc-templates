@@ -1,0 +1,97 @@
+{% raw %}!
+! CIS NX-OS Benchmark v1.1.0 Compliance Template
+!
+
+{% if banner_message is defined %}
+    banner motd {{ banner_message }}
+{% else %}
+    banner motd # Unauthorized access is prohibited! #
+{% endif %}
+
+!
+! 1.1 Ensure password encryption is enabled
+service password-encryption
+
+!
+! 1.2 Ensure authentication timeout is configured
+{% if auth_timeout is defined %}
+    ip ssh time-out {{ auth_timeout }}
+{% else %}
+    ip ssh time-out 60
+{% endif %}
+
+!
+! 1.3 Ensure SSH is configured securely
+feature ssh
+ip ssh version 2
+ip ssh server algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+ip ssh server algorithm mac hmac-sha2-256 hmac-sha2-512
+
+!
+! 1.4 Ensure Telnet is disabled
+no feature telnet
+
+!
+! 1.5 Ensure logging is configured
+logging monitor informational
+logging buffered 50000
+logging console critical
+logging event link-status default
+logging event trunk-status default
+
+!
+! 1.6 Ensure NTP authentication is configured
+feature ntp
+ntp authentication-key 1 md5 {{ ntp_key | default('C1S_S3cur3') }}
+ntp authenticate
+ntp trusted-key 1
+
+!
+! 1.7 Ensure unused services are disabled
+no ip ftp server
+no ip http server
+no ip http secure-server
+no feature pim
+no feature ospf
+no feature rip
+
+!
+! 1.8 Ensure control-plane protections are enabled
+control-plane
+  copp profile strict
+
+!
+! 1.9 Ensure ACLs are applied to management interfaces
+{% if mgmt_acl is defined %}
+    interface mgmt0
+    ip access-group {{ mgmt_acl }} in
+{% endif %}
+
+!
+! 2.0 Ensure user accounts and roles are configured securely
+username admin privilege 15 role network-admin secret {{ admin_password | default('C1sC0S3cur3') }}
+role name network-operator
+  rule 1 permit show
+username operator role network-operator secret {{ operator_password | default('Op3r@t0rP@ss') }}
+
+!
+! 2.1 Ensure password policies are enforced
+password strength-check
+password policy minimum-length 8
+password policy complexity
+
+!
+! 2.2 Ensure session inactivity timeout is configured
+line console
+  exec-timeout 5
+line vty
+  exec-timeout 5
+
+!
+! 2.3 Ensure SNMP is securely configured
+no snmp-server community public
+snmp-server community {{ snmp_community | default('S3cur3C0mm') }} ro
+
+!
+! End of CIS NX-OS Compliance Template
+!{% endraw %}
